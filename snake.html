@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>  
+    <meta charset="utf-8">
+    <title>Snake</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+  <body>
+  <center>    
+    <div id="gameScreen" style="display: none;">
+      <svg id="canvas" width="100%" viewBox="0 0 1000 470"></svg>   
+    </div>
+
+    <div id="modeScreen">
+      <h1>Snake</h1>
+      <h2>Select the Game Mode</h2><br>
+      <button id="classicButton" onclick="changeGameMode('Classic')">Classic</button>
+      <button id="imageryButton" onclick="changeGameMode('Imagery')">Imagery</button>
+      <button id="precisionButton" onclick="changeGameMode('Precision')">Precision</button>
+      <button id="co-opButton" onclick="changeGameMode('Co-op')">Co-op</button>
+    </div>  
+
+    <div id="difficultyScreen" style="display: none;">
+      <h1>Snake</h1>
+      <h2>Select the Difficulty</h2><br>
+      <button id="slowButton" onclick="changeDifficulty('Slow')">Slow</button>
+      <button id="normalButton" onclick="changeDifficulty('Normal')">Normal</button>
+      <button id="fastButton" onclick="changeDifficulty('Fast')">Fast</button>
+      <button id="insaneButton" onclick="changeDifficulty('Insane')">Insane</button>
+    </div>  
+      
+  </center>        
+      
+    <div id="tutorialSpace">    
+      <!--Include a header DIV with the same name as the draggable DIV, followed by "header":-->
+      <div id="tutorialSpaceHeader">Move</div>
+      <div id="deleteButton" onclick="hideTutorialSpace()">X</div>
+      <div id="tutorialText">
+        <h3><u>Background:</u></h3>  
+        <p>&emsp; This game is Snake. A classic from the late 1970s and remastered with Javascript. The purpose of the game is to eat a lot of food and grow big and long! All the while, avoiding the boundaries and cannabalism.</p>      
+        <button class="nextButton" onclick="displayNextSlide()">Right arrow: <i class="arrow right"></i></button>
+      </div>    
+    </div>
+    
+    <script src="bite.js"></script>
+  </body>
+</html>
