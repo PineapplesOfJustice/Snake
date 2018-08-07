@@ -71,8 +71,8 @@ function changeDifficulty(data){
   document.getElementById("difficultyScreen").style.display = "none";
   document.getElementById("gameScreen").style.display = "inline";
   
-  if(gameMode == "Portrait"){ document.body.style.backgroundImage = "url('Images/White Background.jpg')"; }
-  else{ document.body.style.backgroundImage = "url('Images/Sand Background.jpg')"; }
+  if(gameMode == "Portrait"){ document.body.style.backgroundImage = "url('Images/Background/White Background.jpg')"; }
+  else{ document.body.style.backgroundImage = "url('Images/Background/Sand Background.jpg')"; }
 
   difficulty = data; 
   startGame(); 
@@ -98,21 +98,21 @@ function startGame(){
   snake[1].futureDirectionX = -1*speed;  
   snake[1].futureDirectionY = 0;
     
-  snake[0].data[snake[0].data.length] = makeImage("Images/Green Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1); 
+  snake[0].data[snake[0].data.length] = makeImage("Images/Snake/Green Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1); 
   createFood();
   
   if(gameMode == "Portrait"){ 
     snake[0].data[snake[0].data.length-1].remove();
     snake[0].data[snake[0].data.length] = makeClipPathRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);    
-    clippedImage = makeImage("Images/" + imageGallery[Math.floor(Math.random()*imageGallery.length)], 0, 0, "100%", "100%", 1);
+    clippedImage = makeImage("Images/Portrait Images/" + imageGallery[Math.floor(Math.random()*imageGallery.length)], 0, 0, "100%", "100%", 1);
     clippedImage.setAttribute("class", "clip");
     createFood();  
   }  
     
   if(gameMode == "Co-Op"){ 
     snake[0].data[snake[0].data.length-1].remove();
-    snake[0].data[snake[0].data.length] = makeImage("Images/Red Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);   
-    snake[1].data[snake[1].data.length] = makeImage("Images/Blue Snake.png", snake[1].positionX*gridSize, snake[1].positionY*gridSize, gridSize, gridSize, 1); 
+    snake[0].data[snake[0].data.length] = makeImage("Images/Snake/Red Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);   
+    snake[1].data[snake[1].data.length] = makeImage("Images/Snake/Blue Snake.png", snake[1].positionX*gridSize, snake[1].positionY*gridSize, gridSize, gridSize, 1); 
     createFood();
   } 
   
@@ -159,10 +159,10 @@ function gameAnimation(){
     snake[0].data[snake[0].data.length] = makeClipPathRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);  
   }
   else if(gameMode == "Co-Op"){  
-    snake[0].data[snake[0].data.length] = makeImage("Images/Red Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);  
+    snake[0].data[snake[0].data.length] = makeImage("Images/Snake/Red Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);  
   }
   else{  
-    snake[0].data[snake[0].data.length] = makeImage("Images/Green Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);  
+    snake[0].data[snake[0].data.length] = makeImage("Images/Snake/Green Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);  
   }
     
   if(snake[0].data.length > snake[0].maxLength){ snake[0].data[0].remove(); snake[0].data.shift(); }  
@@ -173,7 +173,7 @@ function gameAnimation(){
     snake[1].positionY = snake[1].positionY+snake[1].directionY;   
     snake[1].positionY = Math.round(snake[1].positionY*10)/10;
     if(snake[1].positionX % 1 == 0 && snake[1].positionY % 1 == 0){ updateGameAnimation(1); }      
-    snake[1].data[snake[1].data.length] = makeImage("Images/Blue Snake.png", snake[1].positionX*gridSize, snake[1].positionY*gridSize, gridSize, gridSize, 1);  
+    snake[1].data[snake[1].data.length] = makeImage("Images/Snake/Blue Snake.png", snake[1].positionX*gridSize, snake[1].positionY*gridSize, gridSize, gridSize, 1);  
     if(snake[1].data.length > snake[1].maxLength){ snake[1].data[0].remove(); snake[1].data.shift(); }      
   }  
     
@@ -248,10 +248,10 @@ function createFood(){
   var foodPositionY = Math.floor(Math.random()*gridY); 
   food[food.length] = new Object();  
   if(gameMode == "Portrait"){
-    food[food.length-1].data = makeImage("Images/Candy.png", (foodPositionX*gridSize), (foodPositionY*gridSize), gridSize, gridSize, 1);
+    food[food.length-1].data = makeImage("Images/Food/Candy.png", (foodPositionX*gridSize), (foodPositionY*gridSize), gridSize, gridSize, 1);
   } 
   else{  
-    food[food.length-1].data = makeImage("Images/Watermelon.png", (foodPositionX*gridSize), (foodPositionY*gridSize), gridSize, gridSize, 1);
+    food[food.length-1].data = makeImage("Images/Food/Watermelon.png", (foodPositionX*gridSize), (foodPositionY*gridSize), gridSize, gridSize, 1);
   }
   food[food.length-1].positionX = foodPositionX;
   food[food.length-1].positionY = foodPositionY;  
@@ -398,21 +398,21 @@ function eraseGameProgress(){
 function restart(){
   eraseGameProgress();
     
-  snake[0].data[snake[0].data.length] = makeImage("Images/Green Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1); 
+  snake[0].data[snake[0].data.length] = makeImage("Images/Snake/Green Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1); 
   createFood();  
   
   if(gameMode == "Portrait"){ 
     snake[0].data[snake[0].data.length-1].remove();
     snake[0].data[snake[0].data.length] = makeClipPathRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1); 
-    clippedImage = makeImage("Images/" + imageGallery[Math.floor(Math.random()*imageGallery.length)], 0, 0, "100%", "100%", 1);
+    clippedImage = makeImage("Images/Portrait Images/" + imageGallery[Math.floor(Math.random()*imageGallery.length)], 0, 0, "100%", "100%", 1);
     clippedImage.setAttribute("class", "clip");
     createFood();  
   }  
     
   if(gameMode == "Co-Op"){
     snake[0].data[snake[0].data.length-1].remove();
-    snake[0].data[snake[0].data.length] = makeImage("Images/Red Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);    
-    snake[1].data[snake[1].data.length] = makeImage("Images/Blue Snake.png", snake[1].positionX*gridSize, snake[1].positionY*gridSize, gridSize, gridSize, 1); 
+    snake[0].data[snake[0].data.length] = makeImage("Images/Snake/Red Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);    
+    snake[1].data[snake[1].data.length] = makeImage("Images/Snake/Blue Snake.png", snake[1].positionX*gridSize, snake[1].positionY*gridSize, gridSize, gridSize, 1); 
     createFood();
   } 
   
@@ -423,7 +423,7 @@ function restart(){
 
 function returnToTitleScreen(){
   eraseGameProgress();
-  document.body.style.backgroundImage = "url('Images/Black Background.jpg')"; 
+  document.body.style.backgroundImage = "url('Images/Background/Black Background.jpg')"; 
   document.getElementById("gameScreen").style.display = "none";
   document.getElementById("modeScreen").style.display = "inline";  
   document.removeEventListener('keydown', keyPress);  
@@ -556,13 +556,22 @@ var titleText = makeText("Title Scr.", 463, 264.5, 15, "Special Elite", "black",
 
 
 //Clip Path
-var imageGallery = ["Dialga.png", "Jolteon.jpg", "Earthbound.jpg", "Giratina.jpg", "Lugia.jpg", "Ninetales.jpg", "Fall.jpg", "Earth.jpg", "Light.jpg"];
+var imageGallery = ["Dialga.png",
+                    "Jolteon.jpg",
+                    "Earthbound.jpg",
+                    "Giratina.jpg",
+                    "Lugia.jpg",
+                    "Ninetales.jpg",
+                    "Fall.jpg",
+                    "Earth.jpg",
+                    "Light.jpg",
+                    "Camera.jpg",];
 var clippedImage;
 
 var clipPath = canvas.appendChild(document.createElementNS(namespace, 'clipPath'));
   clipPath.id = 'clip';
 
-var bluePaper = makeImage("Images/Blue Paper.jpg", 0, 0, 1000, 667, 1);
+var bluePaper = makeImage("Images/Portrait Images/Blue Paper.jpg", 0, 0, 1000, 667, 1);
   bluePaper.setAttribute("class", "clip");
 
 function makeClipPathRect(x, y, width, height, opacity) {
