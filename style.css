@@ -43,6 +43,10 @@ button:hover{
   background-color: purple;  
 }
 
+.clip{
+  clip-path: url(#clip);
+}
+
 #tutorialSpace{
   display: none;  
   width: 300px;

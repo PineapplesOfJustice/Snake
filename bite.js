@@ -3,6 +3,8 @@
 
 // when dealing with continuous numbers, the computer may actually add incorrectly. Thus, it is best ot round the number often to negate those mistakes.
 
+// (Alt + 1) make everything look nicer
+
 ////////////////////////*/
 
 var namespace = "http://www.w3.org/2000/svg";
@@ -10,13 +12,26 @@ var namespace = "http://www.w3.org/2000/svg";
 var gridSize = 10;
 var gridX = 100;
 var gridY = 47;
-document.getElementById("canvas").setAttribute("viewBox", "-100 0 " + (gridX*gridSize) + " " + (gridY*gridSize))
 
+document.getElementById("canvas").setAttribute("viewBox", "0 0 " + (gridX*gridSize) + " " + (gridY*gridSize));
+drawGrid();
+function drawGrid(){
+  for(var x=0; x<=gridX; x++){
+    makeLine((x*gridSize), 0, (x*gridSize), (gridY*gridSize), "black", 1, 0.08);
+  }
 
-var mode;
-var difficulty;
+  for(var y=0; y<=gridY; y++){
+    makeLine(0, (y*gridSize), (gridX*gridSize), (y*gridSize), "black", 1, 0.08);  
+  }    
+}
+
+var gameMode = "Classic";
+var difficulty = "Insane";
 var speed = 1;
 var gameEnd = false;
+
+var movesToNextFood;
+var movesToNextFoodText;
 
 var food = [];
 
@@ -37,82 +52,241 @@ var snake2X = gridX-1;
 var snake2Y = 0;
 */
 
-var snake = [{data: [], maxLength: 4/speed, foodEaten: false, directionX: 1*speed, directionY: 0, futureDirectionX: 1*speed, futureDirectionY: 0, positionX: 0, positionY: gridY-1},
-             {data: [], maxLength: 4/speed, foodEaten: false, directionX: -1*speed, directionY: 0, futureDirectionX: -1*speed, futureDirectionY: 0, positionX: gridX-1, positionY: 0},];
+var snake = [{data: [], maxLength: 4/speed, foodEaten: {status: false, positionX: 0, positionY: 0}, directionX: 1*speed, directionY: 0, futureDirectionX: 1*speed, futureDirectionY: 0, positionX: 0, positionY: gridY-1},
+             {data: [], maxLength: 4/speed, foodEaten: {status: false, positionX: 0, positionY: 0}, directionX: -1*speed, directionY: 0, futureDirectionX: -1*speed, futureDirectionY: 0, positionX: gridX-1, positionY: 0},];
+
+//Intial Opening Sequence
 
 function changeGameMode(data){
   document.getElementById("modeScreen").style.display = "none";
   document.getElementById("difficultyScreen").style.display = "inline";  
-  mode = data;  
+  gameMode = data;  
 }
 
 function changeDifficulty(data){
   if(data == "Slow"){ difficulty = "Slow"; speed = 0.1; }
-  if(data == "Normal"){ difficulty = "Normal"; speed = 0.25; }
+  if(data == "Normal"){ difficulty = "Normal"; speed = 0.2; }
   if(data == "Fast"){ difficulty = "Fast"; speed = 0.5; }
   if(data == "Insane"){ difficulty = "Insane"; speed = 1; }  
   document.getElementById("difficultyScreen").style.display = "none";
   document.getElementById("gameScreen").style.display = "inline";
-  document.body.style.backgroundImage = "url('Images/Sand Background.jpg')";  
+  
+  if(gameMode == "Portrait"){ document.body.style.backgroundImage = "url('Images/White Background.jpg')"; }
+  else{ document.body.style.backgroundImage = "url('Images/Sand Background.jpg')"; }
+
   difficulty = data; 
-  displayTutorialAgain();
-}
-
-drawGrid();
-function drawGrid(){
-  for(var x=0; x<=gridX; x++){
-    makeLine((x*gridSize), 0, (x*gridSize), (gridY*gridSize), "black", 1, 0.08);
-  }
-
-  for(var y=0; y<=gridY; y++){
-    makeLine(0, (y*gridSize), (gridX*gridSize), (y*gridSize), "black", 1, 0.08);  
-  }    
+  startGame(); 
+    
+  if(gameMode == "Classic" && !localStorage.Classic){ localStorage.Classic = true; displayTutorialAgain(); }  
+  else if(gameMode == "Portrait" && !localStorage.Portrait){ localStorage.Portrait = true; displayTutorialAgain(); }  
+  else if(gameMode == "Precision" && !localStorage.Precision){ localStorage.Precision = true; displayTutorialAgain(); }  
+  else if(gameMode == "Co-Op" && !localStorage.CoOp){ localStorage.CoOp = true; displayTutorialAgain(); }  
+  else{ document.addEventListener('keydown', keyPress); gameEnd = false; gameAnimation(); }  
+  
 }
 
 function startGame(){
   
-  snake[0].maxLength = 4/speed;
+  snake[0].maxLength = (3/speed)+1;
   snake[0].directionX = speed;  
   snake[0].directionY = 0;
   snake[0].futureDirectionX = speed;  
   snake[0].futureDirectionY = 0;
-  snake[1].maxLength = 4/speed;
+  snake[1].maxLength = (3/speed)+1;
   snake[1].directionX = -1*speed;  
   snake[1].directionY = 0;
   snake[1].futureDirectionX = -1*speed;  
   snake[1].futureDirectionY = 0;
     
-  snake[0].data[snake[0].data.length] = makeRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, "green", 1); 
+  snake[0].data[snake[0].data.length] = makeImage("Images/Green Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1); 
   createFood();
+  
+  if(gameMode == "Portrait"){ 
+    snake[0].data[snake[0].data.length-1].remove();
+    snake[0].data[snake[0].data.length] = makeClipPathRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);    
+    clippedImage = makeImage("Images/" + imageGallery[Math.floor(Math.random()*imageGallery.length)], 0, 0, "100%", "100%", 1);
+    clippedImage.setAttribute("class", "clip");
+    createFood();  
+  }  
     
-  document.addEventListener('keydown', keyPress);   
-  //startAnimation(30);  
-  gameAnimation();
+  if(gameMode == "Co-Op"){ 
+    snake[0].data[snake[0].data.length-1].remove();
+    snake[0].data[snake[0].data.length] = makeImage("Images/Red Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);   
+    snake[1].data[snake[1].data.length] = makeImage("Images/Blue Snake.png", snake[1].positionX*gridSize, snake[1].positionY*gridSize, gridSize, gridSize, 1); 
+    createFood();
+  } 
+  
+  if(gameMode == "Precision"){ movesToNextFoodText = makeText("Move Remaining: " + movesToNextFood, 24, 32, 18, "Special Elite", 1); } 
+}
+
+
+/*
+var stop = false;
+var frameCount = 0;
+var fps, fpsInterval, startTime, now, then, elapsed;
+
+function startAnimation(fps) {
+    fpsInterval = 1000 / fps;
+    then = window.performance.now();
+    startTime = then;
+    console.log(startTime);
+    gameAnimation();
+}
+
+function gameAnimation(newtime) {
+  // calc elapsed time since last loop
+  now = newtime;
+  elapsed = now - then;
+  // if enough time has elapsed, draw the next frame
+  if (elapsed > fpsInterval) {
+    // Get ready for next frame by setting then=now, but...
+    // Also, adjust for fpsInterval not being multiple of 16.67
+    then = now - (elapsed % fpsInterval);
+    // draw stuff here   
+*/
+
+
+//Main Game Sequence
+
+function gameAnimation(){        
+  snake[0].positionX = snake[0].positionX+snake[0].directionX;  
+  snake[0].positionX = Math.round(snake[0].positionX*10)/10;  
+  snake[0].positionY = snake[0].positionY+snake[0].directionY;  
+  snake[0].positionY = Math.round(snake[0].positionY*10)/10;
+  if(snake[0].positionX % 1 == 0 && snake[0].positionY % 1 == 0){ updateGameAnimation(0); }      
+
+  if(gameMode == "Portrait"){
+    snake[0].data[snake[0].data.length] = makeClipPathRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);  
+  }
+  else if(gameMode == "Co-Op"){  
+    snake[0].data[snake[0].data.length] = makeImage("Images/Red Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);  
+  }
+  else{  
+    snake[0].data[snake[0].data.length] = makeImage("Images/Green Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);  
+  }
+    
+  if(snake[0].data.length > snake[0].maxLength){ snake[0].data[0].remove(); snake[0].data.shift(); }  
+    
+  if(gameMode == "Co-Op"){
+    snake[1].positionX = snake[1].positionX+snake[1].directionX;  
+    snake[1].positionX = Math.round(snake[1].positionX*10)/10;  
+    snake[1].positionY = snake[1].positionY+snake[1].directionY;   
+    snake[1].positionY = Math.round(snake[1].positionY*10)/10;
+    if(snake[1].positionX % 1 == 0 && snake[1].positionY % 1 == 0){ updateGameAnimation(1); }      
+    snake[1].data[snake[1].data.length] = makeImage("Images/Blue Snake.png", snake[1].positionX*gridSize, snake[1].positionY*gridSize, gridSize, gridSize, 1);  
+    if(snake[1].data.length > snake[1].maxLength){ snake[1].data[0].remove(); snake[1].data.shift(); }      
+  }  
+    
+  // request another frame
+  if(!gameEnd){ requestAnimationFrame(gameAnimation); }
+}
+
+function updateGameAnimation(snakeId){
+  movesToNextFood -= 1;  
+  if(snake[snakeId].foodEaten.status == true){
+    for(var i=0, length=food.length; i<length; i++){
+      if(snake[snakeId].foodEaten.positionX == food[i].positionX && snake[snakeId].foodEaten.positionY == food[i].positionY){  
+        food[i].data.remove();
+        food.splice(i, 1);
+        createFood();  
+        snake[snakeId].foodEaten.status = false;  
+      }  
+    }
+  }
+    
+  checkForFood(snakeId);
+  checkForObstacle(snakeId); 
+  checkForCompletion(snakeId);  
+  
+  if(gameMode == "Precision"){  
+    movesToNextFoodText.remove();
+    movesToNextFoodText = makeText("Move Remaining: " + movesToNextFood, 24, 32, 18, "Special Elite", 1);
+  }
+    
+  snake[snakeId].directionX = snake[snakeId].futureDirectionX;
+  snake[snakeId].directionY = snake[snakeId].futureDirectionY; 
+}
+
+function checkForFood(snakeId){
+  for(var i=0, length=food.length; i<length; i++){
+    if(snake[snakeId].positionX == food[i].positionX && snake[snakeId].positionY == food[i].positionY){
+      snake[snakeId].maxLength += 1/speed;
+      snake[snakeId].foodEaten.status = true;
+      snake[snakeId].foodEaten.positionX = food[i].positionX;
+      snake[snakeId].foodEaten.positionY = food[i].positionY;  
+    }
+  }  
+}
+
+function checkForObstacle(snakeId){
+  if(gameMode == "Precision" && movesToNextFood <= 0){ gameOver(); }
+  else if(snake[snakeId].positionX == gridX || snake[snakeId].positionX == -1 || snake[snakeId].positionY == gridY || snake[snakeId].positionY == -1){
+    gameOver();  
+  }
+  else{
+    for(var i=0, length=snake[0].data.length; i<length; i++){
+      if(snake[snakeId].positionX == (snake[0].data[i].getAttribute("x")/gridSize) && snake[snakeId].positionY == (snake[0].data[i].getAttribute("y")/gridSize)){
+        gameOver();  
+      }  
+    }
+    if(gameMode == "Co-Op"){ 
+      for(var i=0, length=snake[1].data.length; i<length; i++){
+        if(snake[snakeId].positionX == (snake[1].data[i].getAttribute("x")/gridSize) && snake[snakeId].positionY == (snake[1].data[i].getAttribute("y")/gridSize)){
+          gameOver();  
+        }  
+      }  
+    }  
+  }  
+}
+
+function checkForCompletion(snakeId){
+  if(snake[snakeId].maxLength/speed >= gridX*gridY){ gameVictory(); }  
 }
 
 function createFood(){
-  var foodPositionX = (Math.floor(Math.random()*gridX)+1)*gridSize; 
-  var foodPositionY = (Math.floor(Math.random()*gridY)+1)*gridSize;  
-  food[food.length] = makeRect(foodPositionX, foodPositionY, gridSize, gridSize, "black", 1);
+  var foodPositionX = Math.floor(Math.random()*gridX); 
+  var foodPositionY = Math.floor(Math.random()*gridY); 
+  food[food.length] = new Object();  
+  if(gameMode == "Portrait"){
+    food[food.length-1].data = makeImage("Images/Candy.png", (foodPositionX*gridSize), (foodPositionY*gridSize), gridSize, gridSize, 1);
+  } 
+  else{  
+    food[food.length-1].data = makeImage("Images/Watermelon.png", (foodPositionX*gridSize), (foodPositionY*gridSize), gridSize, gridSize, 1);
+  }
+  food[food.length-1].positionX = foodPositionX;
+  food[food.length-1].positionY = foodPositionY;  
   for(var i=0, length=snake[0].data.length; i<length; i++){
     if(foodPositionX == (snake[0].data[i].getAttribute("x")/gridSize) && foodPositionY == (snake[0].data[i].getAttribute("y")/gridSize) ){
-      food[food.length-1].remove;
+      food[food.length-1].remove();
       food.pop();
       createFood();  
     }  
   }
-  for(var i=0, length=food.length; i<length; i++){
-    if(foodPositionX == (food[i].getAttribute("x")/gridSize) && foodPositionY == (food[i].getAttribute("y")/gridSize) ){
-      food[food.length-1].remove;
+  if(gameMode == "Co-Op"){
+    for(var i=0, length=snake[1].data.length; i<length; i++){
+      if(foodPositionX == (snake[1].data[i].getAttribute("x")/gridSize) && foodPositionY == (snake[1].data[i].getAttribute("y")/gridSize) ){
+        food[food.length-1].remove();
+        food.pop();
+        createFood();  
+      }  
+    }   
+  }  
+  for(var i=0, length=food.length-1; i<length; i++){
+    if(foodPositionX == food[i].positionX && foodPositionY == food[i].positionY){
+      food[food.length-1].remove();
       food.pop();
       createFood();  
     }  
   }
+  movesToNextFood = Math.abs(snake[0].positionX-foodPositionX) + Math.abs(snake[0].positionY-foodPositionY) + (50*speed) + 3;  
 }
+
+
+// Player Interactibility
 
 function keyPress(event){
   var key = event.keyCode;
-  console.log(key);
+  //console.log(key);
     
   // W Key  
   if(key == 87 && snake[0].directionY != speed){
@@ -161,107 +335,20 @@ function keyPress(event){
     snake[1].futureDirectionX = speed;
     snake[1].futureDirectionY = 0;  
   }  
+  
+  // R Key  
+  if(key == 82){ gameEnd = true; setTimeout(restart, 200); }
+  
+  // T Key  
+  if(key == 84){ gameEnd = true; setTimeout(returnToTitleScreen, 200); }
+  
+  // I/H Key  
+  if(key == 73 || key ==72){ displayTutorialAgain(); }
     
 }
 
-// Used StackFlow
 
-var stop = false;
-var frameCount = 0;
-var fps, fpsInterval, startTime, now, then, elapsed;
-
-/*
-function startAnimation(fps) {
-    fpsInterval = 1000 / fps;
-    then = window.performance.now();
-    startTime = then;
-    console.log(startTime);
-    gameAnimation();
-}
-
-function gameAnimation(newtime) {
-  // calc elapsed time since last loop
-  now = newtime;
-  elapsed = now - then;
-  // if enough time has elapsed, draw the next frame
-  if (elapsed > fpsInterval) {
-    // Get ready for next frame by setting then=now, but...
-    // Also, adjust for fpsInterval not being multiple of 16.67
-    then = now - (elapsed % fpsInterval);
-    // draw stuff here   
-*/
-
-function gameAnimation(){        
-  snake[0].positionX = snake[0].positionX+snake[0].directionX;  
-  snake[0].positionX = Math.round(snake[0].positionX*10)/10;  
-  snake[0].positionY = snake[0].positionY+snake[0].directionY;  
-  snake[0].positionY = Math.round(snake[0].positionY*10)/10;
-    console.log(snake[0].positionX);
-  if(snake[0].positionX % 1 == 0 && snake[0].positionY % 1 == 0){ updateGameAnimation(); }      
-  snake[0].data[snake[0].data.length] = makeRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, "black", 1);  
-  if(snake[0].data.length > snake[0].maxLength){ snake[0].data[0].remove(); snake[0].data.shift(); }  
-  // request another frame
-  if(!gameEnd){ requestAnimationFrame(gameAnimation); }
-}
-
-function updateGameAnimation(){
-  snake[0].directionX = snake[0].futureDirectionX;
-  snake[0].directionY = snake[0].futureDirectionY;
-  checkForFood(0);
-  checkForObstacle(0);  
-}
-
-function checkForFood(snakeId){
-  for(var i=0, length=food.length; i<length; i++){
-    if(snake[snakeId].positionX == (food[i].getAttribute("x")/gridSize) && snake[snakeId].positionY == (food[i].getAttribute("y")/gridSize)){
-      snake[snakeId].maxLength += 1;
-      food[i].remove();
-      food.splice(i, 1);
-      createFood();  
-    }
-  }  
-}
-
-function checkForObstacle(snakeId){
-  if(snake[snakeId].positionX == gridX || snake[snakeId].positionX == -1 || snake[snakeId].positionY == gridY || snake[snakeId].positionY == -1){
-    gameOver();  
-  }
-  else{
-    for(var i=0, length=snake[0].data.length; i<length; i++){
-      if(snake[snakeId].positionX == (snake[0].data[i].getAttribute("x")/gridSize) && snake[snakeId].positionY == (snake[0].data[i].getAttribute("y")/gridSize)){
-        gameOver();  
-      }  
-    }  
-  }  
-}
-
-
-var blackScreen = makeRect(0, 0, (gridX*gridSize), (gridY*gridSize), "black", 0.6);  
-  blackScreen.style.display = "none";
-var gameOverTextBackground = makeText("Game Over", 338, 146, 64, "Special Elite", "white", 1);  
-  gameOverTextBackground.style.display = "none";
-var gameOverText = makeText("Game Over", 339.5, 145, 64, "Special Elite", "black", 1);  
-  gameOverText.style.display = "none";
-var restartButton = makeRect(447, 210, 106, 20, "white", 1);  
-  restartButton.setAttribute("style", "cursor: pointer;");  
-  restartButton.addEventListener('click', restart);
-  restartButton.setAttribute("stroke", "black");
-  restartButton.setAttribute("stroke-width", 2);  
-  restartButton.style.display = "none";
-var restartText = makeText("Restart", 471, 224.5, 15, "Special Elite", "black", 1);
-  restartText.setAttribute("style", "cursor: pointer;");  
-  restartText.addEventListener('click', restart); 
-  restartText.style.display = "none";
-var titleButton = makeRect(447, 250, 106, 20, "white", 1);
-  titleButton.setAttribute("style", "cursor: pointer;");  
-  titleButton.addEventListener('click', returnToTitleScreen);
-  titleButton.setAttribute("stroke", "black");
-  titleButton.setAttribute("stroke-width", 2); 
-  titleButton.style.display = "none";  
-var titleText = makeText("Title Scr.", 463, 264.5, 15, "Special Elite", "black", 1);  
-  titleText.setAttribute("style", "cursor: pointer;");  
-  titleText.addEventListener('click', returnToTitleScreen); 
-  titleText.style.display = "none";  
+//Game Over/Victory Sequence
 
 function gameOver(){
   gameEnd = true;  
@@ -274,30 +361,62 @@ function gameOver(){
   titleText.style.display = "inline";
 }
 
+function gameVictory(){
+  gameEnd = true;  
+  blackScreen.style.display = "inline";
+  successTextBackground.style.display = "inline";
+  successText.style.display = "inline";
+  restartButton.style.display = "inline";
+  restartText.style.display = "inline";
+  titleButton.style.display = "inline";  
+  titleText.style.display = "inline";
+}
+
 function eraseGameProgress(){
   for(var i=snake[0].data.length-1; i>=0; i--){ snake[0].data[i].remove(); snake[0].data.pop(); }
   for(var i=snake[1].data.length-1; i>=0; i--){ snake[1].data[i].remove(); snake[1].data.pop(); }
-  for(var i=food.length-1; i>=0; i--){ food[i].remove(); food.pop(); }
+  for(var i=food.length-1; i>=0; i--){ if(food[i]){ food[i].data.remove(); food.pop(); } }
     
-  snake = [{data: [], maxLength: 4/speed, foodEaten: false, directionX: 1*speed, directionY: 0, futureDirectionX: 1*speed, futureDirectionY: 0, positionX: 0, positionY: gridY-1},
-           {data: [], maxLength: 4/speed, foodEaten: false, directionX: -1*speed, directionY: 0, futureDirectionX: -1*speed, futureDirectionY: 0, positionX: gridX-1, positionY: 0},];
+  snake = [{data: [], maxLength: 4/speed, foodEaten: {status: false, positionX: 0, positionY: 0}, directionX: 1*speed, directionY: 0, futureDirectionX: 1*speed, futureDirectionY: 0, positionX: 0, positionY: gridY-1},
+           {data: [], maxLength: 4/speed, foodEaten: {status: false, positionX: 0, positionY: 0}, directionX: -1*speed, directionY: 0, futureDirectionX: -1*speed, futureDirectionY: 0, positionX: gridX-1, positionY: 0},];
     
   
   blackScreen.style.display = "none";
   gameOverTextBackground.style.display = "none";
   gameOverText.style.display = "none";
+  successTextBackground.style.display = "none";
+  successText.style.display = "none";
   restartButton.style.display = "none";
   restartText.style.display = "none";
   titleButton.style.display = "none";  
   titleText.style.display = "none";
+  if(movesToNextFoodText){ movesToNextFoodText.remove(); }  
+  if(clippedImage){ clippedImage.remove(); }  
   gameEnd = false;
 }
 
 function restart(){
   eraseGameProgress();
     
-  snake[0].data[snake[0].data.length] = makeRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, "green", 1); 
-  createFood();
+  snake[0].data[snake[0].data.length] = makeImage("Images/Green Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1); 
+  createFood();  
+  
+  if(gameMode == "Portrait"){ 
+    snake[0].data[snake[0].data.length-1].remove();
+    snake[0].data[snake[0].data.length] = makeClipPathRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1); 
+    clippedImage = makeImage("Images/" + imageGallery[Math.floor(Math.random()*imageGallery.length)], 0, 0, "100%", "100%", 1);
+    clippedImage.setAttribute("class", "clip");
+    createFood();  
+  }  
+    
+  if(gameMode == "Co-Op"){
+    snake[0].data[snake[0].data.length-1].remove();
+    snake[0].data[snake[0].data.length] = makeImage("Images/Red Snake.png", snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);    
+    snake[1].data[snake[1].data.length] = makeImage("Images/Blue Snake.png", snake[1].positionX*gridSize, snake[1].positionY*gridSize, gridSize, gridSize, 1); 
+    createFood();
+  } 
+  
+  if(gameMode == "Precision"){ movesToNextFoodText = makeText("Move Remaining: " + movesToNextFood, 24, 32, 18, "Special Elite", 1); } 
     
   gameAnimation();
 }
@@ -309,6 +428,8 @@ function returnToTitleScreen(){
   document.getElementById("modeScreen").style.display = "inline";  
   document.removeEventListener('keydown', keyPress);  
 }
+
+
 
 //Used W3School
 //Draggable Tutorial
@@ -353,24 +474,107 @@ function dragElement(elmnt) {
   }
 }
 
-
-
 function displayTutorialAgain(){
   document.getElementById("tutorialSpace").setAttribute("style", "display: inline; top: 50%; left: 50%; transform: (-50%, -50%);");  
   slide = 1;  
   displayNextSlide();
+  document.removeEventListener('keydown', keyPress);  
+  gameEnd = true;  
 }
 
 function hideTutorialSpace(){
-  document.getElementById("tutorialSpace").setAttribute("style", "display: none;");    
-  startGame();   
+  document.getElementById("tutorialSpace").setAttribute("style", "display: none;");       
+  document.addEventListener('keydown', keyPress);  
+  gameEnd = false;  
+  gameAnimation();
 }
 
 var slide=1;
 function displayNextSlide(){
-  if(slide == 1){}
+  if(slide == 1){
+    document.getElementById("tutorialText").innerHTML = "<h3><u>Background:</u></h3><p>&emsp; This game is Snake. A classic from the late 1970s and remastered with Javascript. The purpose of the game is to eat a lot of food and grow big and long! All the while, avoiding the boundaries and cannabalism.</p><button class='nextButton' onclick='displayNextSlide()'>Next: <i class='arrow right'></i></button>"; 
+    slide = 2;
+  }
+  else if(slide ==2){
+    if(gameMode == "Portrait"){
+      document.getElementById("tutorialText").innerHTML = "<h3><u>Portrait:</u></h3><p>&emsp; This is an experimental game mode. The canvas is an invisible picture and only the snake can reveal it! Can you complete the picture? Or will you die trying to do so?</p><button class='nextButton' onclick='displayNextSlide()'>Next: <i class='arrow right'></i></button>";  
+      slide = 3;   
+    }  
+    else if(gameMode == "Precision"){
+      document.getElementById("tutorialText").innerHTML = "<h3><u>Precision:</u></h3><p>&emsp; This is an experimental game mode. You have limited moves to get to the next piece of food! Do not mess up or you will starve! Best of luck. Timing is the key.</p><button class='nextButton' onclick='displayNextSlide()'>Next: <i class='arrow right'></i></button>";  
+      slide = 3;   
+    }  
+    else if(gameMode == "Co-Op"){
+      document.getElementById("tutorialText").innerHTML = "<h3><u>Co-Op:</u></h3><p>&emsp; This is an experimental game mode. Two snakes mean double the fun. Play with a friend and see who is the best, but don't kill each other though. Be a good eSportman.</p><button class='nextButton' onclick='displayNextSlide()'>Next: <i class='arrow right'></i></button>";  
+      slide = 3;   
+    }  
+    else{
+      document.getElementById("tutorialText").innerHTML = "<h3><u>Players:</u></h3><ul><li>WASD = Move Snake</li><li>Arrow keys = Move Snake</li></ul><h3><u>Miscellaneous:</u></h3><ul><li>R = Restart</li><li>T = Title Screen</li><li>I/H = Reopen Info</li></ul><button class='nextButton' onclick='displayNextSlide()'>Next: <i class='arrow right'></i></button>"; 
+      slide = 1;
+    }  
+  }
+  else if(slide == 3){
+    document.getElementById("tutorialText").innerHTML = "<h3><u>Players:</u></h3><ul><li>WASD = Move Snake</li><li>Arrow keys = Move Snake</li></ul><h3><u>Miscellaneous:</u></h3><ul><li>R = Restart</li><li>T = Title Screen</li><li>I/H = Reopen Info</li></ul><button class='nextButton' onclick='displayNextSlide()'>Next: <i class='arrow right'></i></button>"; 
+    slide = 1;
+  }
 }
 
+
+
+// For Game Over Screen
+
+var blackScreen = makeRect(0, 0, (gridX*gridSize), (gridY*gridSize), "black", 0.6);  
+  blackScreen.style.display = "none";
+var gameOverTextBackground = makeText("Game Over", 338, 146, 64, "Special Elite", "white", 1);  
+  gameOverTextBackground.style.display = "none";
+var gameOverText = makeText("Game Over", 339.5, 145, 64, "Special Elite", "black", 1);  
+  gameOverText.style.display = "none";
+var successTextBackground = makeText("Overflow", 348.5, 146, 64, "Special Elite", "white", 1);  
+  successTextBackground.style.display = "none";
+var successText = makeText("Overflow", 350, 145, 64, "Special Elite", "black", 1);  
+  successText.style.display = "none";
+var restartButton = makeRect(447, 210, 106, 20, "white", 1);  
+  restartButton.setAttribute("style", "cursor: pointer;");  
+  restartButton.addEventListener('click', restart);
+  restartButton.setAttribute("stroke", "black");
+  restartButton.setAttribute("stroke-width", 2);  
+  restartButton.style.display = "none";
+var restartText = makeText("Restart", 471, 224.5, 15, "Special Elite", "black", 1);
+  restartText.setAttribute("style", "cursor: pointer;");  
+  restartText.addEventListener('click', restart); 
+  restartText.style.display = "none";
+var titleButton = makeRect(447, 250, 106, 20, "white", 1);
+  titleButton.setAttribute("style", "cursor: pointer;");  
+  titleButton.addEventListener('click', returnToTitleScreen);
+  titleButton.setAttribute("stroke", "black");
+  titleButton.setAttribute("stroke-width", 2); 
+  titleButton.style.display = "none";  
+var titleText = makeText("Title Scr.", 463, 264.5, 15, "Special Elite", "black", 1);  
+  titleText.setAttribute("style", "cursor: pointer;");  
+  titleText.addEventListener('click', returnToTitleScreen); 
+  titleText.style.display = "none";  
+
+
+//Clip Path
+var imageGallery = ["Dialga.png", "Jolteon.jpg", "Earthbound.jpg", "Giratina.jpg", "Lugia.jpg", "Ninetales.jpg", "Fall.jpg", "Earth.jpg", "Light.jpg"];
+var clippedImage;
+
+var clipPath = canvas.appendChild(document.createElementNS(namespace, 'clipPath'));
+  clipPath.id = 'clip';
+
+var bluePaper = makeImage("Images/Blue Paper.jpg", 0, 0, 1000, 667, 1);
+  bluePaper.setAttribute("class", "clip");
+
+function makeClipPathRect(x, y, width, height, opacity) {
+  var rect = clipPath.appendChild(document.createElementNS(namespace, "rect"));
+  rect.setAttribute("x", x)
+  rect.setAttribute("y", y)
+  rect.setAttribute("width", width)
+  rect.setAttribute("height", height)
+  rect.setAttribute("opacity", opacity)
+  
+  return rect
+}
 
 // DO NOT EDIT CODE BELOW THIS LINE!
 function getX(shape) {
