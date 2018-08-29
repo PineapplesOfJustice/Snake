@@ -77,10 +77,10 @@ function changeDifficulty(data){
   difficulty = data; 
   startGame(); 
     
-  if(gameMode == "Classic" && !localStorage.Classic){ localStorage.Classic = true; displayTutorialAgain(); }  
-  else if(gameMode == "Portrait" && !localStorage.Portrait){ localStorage.Portrait = true; displayTutorialAgain(); }  
-  else if(gameMode == "Precision" && !localStorage.Precision){ localStorage.Precision = true; displayTutorialAgain(); }  
-  else if(gameMode == "Co-Op" && !localStorage.CoOp){ localStorage.CoOp = true; displayTutorialAgain(); }  
+  if(gameMode == "Classic" && !sessionStorage.Classic){ sessionStorage.Classic = true; displayTutorialAgain(); }  
+  else if(gameMode == "Portrait" && !sessionStorage.Portrait){ sessionStorage.Portrait = true; displayTutorialAgain(); }  
+  else if(gameMode == "Precision" && !sessionStorage.Precision){ sessionStorage.Precision = true; displayTutorialAgain(); }  
+  else if(gameMode == "Co-Op" && !sessionStorage.CoOp){ sessionStorage.CoOp = true; displayTutorialAgain(); }  
   else{ document.addEventListener('keydown', keyPress); gameEnd = false; gameAnimation(); }  
   
 }
