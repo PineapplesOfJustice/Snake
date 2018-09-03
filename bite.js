@@ -567,7 +567,10 @@ var imageGallery = ["Dialga.png",
                     "Light.jpg",
                     "Camera.jpg",
                     "Xerneas.png",
-                    "Grovyle.png",];
+                    "Grovyle.png",
+                    "Volcarona.jpg",
+                    "Ash Ketchum.jpg",
+                    "Ho-Oh.jpg",];
 var clippedImage;
 
 var clipPath = canvas.appendChild(document.createElementNS(namespace, 'clipPath'));
