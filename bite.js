@@ -257,7 +257,7 @@ function createFood(){
   food[food.length-1].positionY = foodPositionY;  
   for(var i=0, length=snake[0].data.length; i<length; i++){
     if(foodPositionX == (snake[0].data[i].getAttribute("x")/gridSize) && foodPositionY == (snake[0].data[i].getAttribute("y")/gridSize) ){
-      food[food.length-1].remove();
+      food[food.length-1].data.remove();
       food.pop();
       createFood();  
     }  
@@ -265,7 +265,7 @@ function createFood(){
   if(gameMode == "Co-Op"){
     for(var i=0, length=snake[1].data.length; i<length; i++){
       if(foodPositionX == (snake[1].data[i].getAttribute("x")/gridSize) && foodPositionY == (snake[1].data[i].getAttribute("y")/gridSize) ){
-        food[food.length-1].remove();
+        food[food.length-1].data.remove();
         food.pop();
         createFood();  
       }  
@@ -273,7 +273,7 @@ function createFood(){
   }  
   for(var i=0, length=food.length-1; i<length; i++){
     if(foodPositionX == food[i].positionX && foodPositionY == food[i].positionY){
-      food[food.length-1].remove();
+      food[food.length-1].data.remove();
       food.pop();
       createFood();  
     }  
