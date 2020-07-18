@@ -29,6 +29,7 @@ var gameMode = "Classic";
 var difficulty = "Insane";
 var speed = 1;
 var gameEnd = false;
+var portraitFoodCount = 3;
 
 var movesToNextFood;
 var movesToNextFoodText;
@@ -106,7 +107,9 @@ function startGame(){
     snake[0].data[snake[0].data.length] = makeClipPathRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1);    
     clippedImage = makeImage("Images/Portrait Images/" + imageGallery[Math.floor(Math.random()*imageGallery.length)], 0, 0, "100%", "100%", 1);
     clippedImage.setAttribute("class", "clip");
-    createFood();  
+    for (var i=1; i<portraitFoodCount; i++) {
+      createFood();  
+    }
   }  
     
   if(gameMode == "Co-Op"){ 
@@ -406,7 +409,9 @@ function restart(){
     snake[0].data[snake[0].data.length] = makeClipPathRect(snake[0].positionX*gridSize, snake[0].positionY*gridSize, gridSize, gridSize, 1); 
     clippedImage = makeImage("Images/Portrait Images/" + imageGallery[Math.floor(Math.random()*imageGallery.length)], 0, 0, "100%", "100%", 1);
     clippedImage.setAttribute("class", "clip");
-    createFood();  
+    for (var i=1; i<portraitFoodCount; i++) {
+      createFood();  
+    }
   }  
     
   if(gameMode == "Co-Op"){
@@ -556,21 +561,15 @@ var titleText = makeText("Title Scr.", 463, 264.5, 15, "Special Elite", "black",
 
 
 //Clip Path
-var imageGallery = ["Dialga.png",
-                    "Jolteon.jpg",
-                    "Earthbound.jpg",
-                    "Giratina.jpg",
-                    "Lugia.jpg",
-                    "Ninetales.jpg",
-                    "Fall.jpg",
-                    "Earth.jpg",
-                    "Light.jpg",
-                    "Camera.jpg",
-                    "Xerneas.png",
-                    "Grovyle.png",
-                    "Volcarona.jpg",
-                    "Ash Ketchum.jpg",
-                    "Ho-Oh.jpg",];
+
+// image from Pixabay
+var imageGallery = ["Autumn.jpg",
+                    "Butterfly.jpg",
+                    "Cat.jpg",
+                    "Jeans.jpg",
+                    "Snake.jpg",
+                    "Space.jpg",
+                    "Tomato.jpg",];
 var clippedImage;
 
 var clipPath = canvas.appendChild(document.createElementNS(namespace, 'clipPath'));
